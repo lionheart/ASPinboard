@@ -11,6 +11,16 @@
 static NSString *PinboardEndpoint = @"https://api.pinboard.in/v1/";
 static NSString *ASPinboardErrorDomain = @"ASPinboardErrorDomain";
 
+typedef void(^PinboardGenericBlock)(id);
+typedef void(^PinboardEmptyBlock)();
+typedef void(^PinboardStringBlock)(NSString *);
+typedef void(^PinboardTwoStringBlock)(NSString *, NSString *);
+typedef void(^PinboardDateBlock)(NSDate *);
+typedef void(^PinboardArrayBlock)(NSArray *);
+typedef void(^PinboardTwoArrayBlock)(NSArray *, NSArray *);
+typedef void(^PinboardDictionaryBlock)(NSDictionary *);
+typedef void(^PinboardErrorBlock)(NSError *);
+
 enum PINBOARD_ERROR_CODES {
     PinboardErrorBookmarkNotFound,
     PinboardErrorTimeout,
@@ -41,33 +51,33 @@ enum PINBOARD_ERROR_CODES {
 - (void)timerCompleted:(NSTimer *)timer;
 - (void)requestPath:(NSString *)path
          parameters:(NSDictionary *)parameters
-            success:(void (^)(id))success
-            failure:(void (^)(NSError *))failure;
+            success:(PinboardGenericBlock)success
+            failure:(PinboardErrorBlock)failure;
 
-- (void)requestPath:(NSString *)path success:(void (^)(id))success failure:(void (^)(NSError *))failure;
-- (void)requestPath:(NSString *)path success:(void (^)(id))success;
+- (void)requestPath:(NSString *)path success:(PinboardGenericBlock)success failure:(PinboardErrorBlock)failure;
+- (void)requestPath:(NSString *)path success:(PinboardGenericBlock)success;
 
 - (void)authenticateWithUsername:(NSString *)username
                         password:(NSString *)password
                          timeout:(NSTimeInterval)timeout
-                         success:(void (^)(NSString *token))success
-                         failure:(void (^)(NSError *))failure;
+                         success:(PinboardStringBlock)success
+                         failure:(PinboardErrorBlock)failure;
 
 - (void)authenticateWithUsername:(NSString *)username
                         password:(NSString *)password
-                         success:(void (^)(NSString *token))success
-                         failure:(void (^)(NSError *))failure;
+                         success:(PinboardStringBlock)success
+                         failure:(PinboardErrorBlock)failure;
 
 #pragma mark - API Methods
 #pragma mark Generic Endpoints
 
-- (void)lastUpdateWithSuccess:(void (^)(NSDate *))success failure:(void (^)(NSError *))failure;
-- (void)rssKeyWithSuccess:(void (^)(NSString *))success;
+- (void)lastUpdateWithSuccess:(PinboardDateBlock)success failure:(PinboardErrorBlock)failure;
+- (void)rssKeyWithSuccess:(PinboardStringBlock)success;
 
 #pragma mark Bookmarks
 
-- (void)bookmarksWithSuccess:(void (^)(NSArray *bookmarks))success
-                     failure:(void (^)(NSError *))failure;
+- (void)bookmarksWithSuccess:(PinboardArrayBlock)success
+                     failure:(PinboardErrorBlock)failure;
 
 - (void)bookmarksWithTags:(NSString *)tags
                    offset:(NSInteger)offset
@@ -75,10 +85,10 @@ enum PINBOARD_ERROR_CODES {
                  fromDate:(NSDate *)fromDate
                    toDate:(NSDate *)toDate
               includeMeta:(BOOL)includeMeta
-                  success:(void (NSArray *bookmarks))success
-                  failure:(void (^)(NSError *))failure;
+                  success:(PinboardArrayBlock)success
+                  failure:(PinboardErrorBlock)failure;
 
-- (void)bookmarksByDateWithTags:(NSString *)tags success:(void (^)(NSDictionary *))success;
+- (void)bookmarksByDateWithTags:(NSString *)tags success:(PinboardDictionaryBlock)success;
 
 - (void)addBookmark:(NSDictionary *)bookmark
             success:(void (^)())success
@@ -90,22 +100,22 @@ enum PINBOARD_ERROR_CODES {
                       tags:(NSString *)tags
                     shared:(BOOL)shared
                     unread:(BOOL)unread
-                   success:(void (^)())success
-                   failure:(void (^)(NSError *))failure;
+                   success:(PinboardEmptyBlock)success
+                   failure:(PinboardErrorBlock)failure;
 
-- (void)bookmarkWithURL:(NSString *)url success:(void (^)(NSDictionary *))success failure:(void (^)(NSError *))failure;
-- (void)deleteBookmarkWithURL:(NSString *)url success:(void (^)())success failure:(void (^)(NSError *))failure;
+- (void)bookmarkWithURL:(NSString *)url success:(PinboardDictionaryBlock)success failure:(PinboardErrorBlock)failure;
+- (void)deleteBookmarkWithURL:(NSString *)url success:(PinboardEmptyBlock)success failure:(PinboardErrorBlock)failure;
 
 #pragma mark Notes
 
-- (void)notesWithSuccess:(void (^)(NSArray *))success;
-- (void)noteWithId:(NSString *)noteId success:(void (^)(NSString *, NSString *))success;
+- (void)notesWithSuccess:(PinboardArrayBlock)success;
+- (void)noteWithId:(NSString *)noteId success:(PinboardTwoStringBlock)success;
 
 #pragma mark Tags
 
-- (void)tagsWithSuccess:(void (^)(NSDictionary *))success;
-- (void)deleteTag:(NSString *)tag success:(void (^)())success;
-- (void)renameTagFrom:(NSString *)oldTag to:(NSString *)newTag success:(void (^)())success;
-- (void)tagSuggestionsForURL:(NSString *)url success:(void (^)(NSArray *, NSArray *))success;
+- (void)tagsWithSuccess:(PinboardDictionaryBlock)success;
+- (void)deleteTag:(NSString *)tag success:(PinboardEmptyBlock)success;
+- (void)renameTagFrom:(NSString *)oldTag to:(NSString *)newTag success:(PinboardEmptyBlock)success;
+- (void)tagSuggestionsForURL:(NSString *)url success:(PinboardTwoArrayBlock)success;
 
 @end

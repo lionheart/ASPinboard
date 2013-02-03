@@ -54,7 +54,7 @@
     return self;
 }
 
-- (void)requestPath:(NSString *)path parameters:(NSDictionary *)parameters success:(void (^)(id))success failure:(void (^)(NSError *))failure {
+- (void)requestPath:(NSString *)path parameters:(NSDictionary *)parameters success:(PinboardGenericBlock)success failure:(PinboardErrorBlock)failure {
     self.requestStartedCallback();
 
     NSMutableArray *queryComponents = [NSMutableArray arrayWithObject:@"format=json"];
@@ -89,15 +89,15 @@
                            }];
 }
 
-- (void)requestPath:(NSString *)path success:(void (^)(id))success failure:(void (^)(NSError *))failure {
+- (void)requestPath:(NSString *)path success:(PinboardGenericBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:path parameters:nil success:success failure:failure];
 }
 
-- (void)requestPath:(NSString *)path success:(void (^)(id))success {
+- (void)requestPath:(NSString *)path success:(PinboardGenericBlock)success {
     [self requestPath:path parameters:nil success:success failure:^(NSError *error){}];
 }
 
-- (void)authenticateWithUsername:(NSString *)username password:(NSString *)password timeout:(NSTimeInterval)timeout success:(void (^)(NSString *))success failure:(void (^)(NSError *))failure{
+- (void)authenticateWithUsername:(NSString *)username password:(NSString *)password timeout:(NSTimeInterval)timeout success:(PinboardStringBlock)success failure:(PinboardErrorBlock)failure{
     self.loginSuccessCallback = success;
     self.loginFailureCallback = failure;
     self.username = username;
@@ -112,7 +112,7 @@
     [self.loginConnection start];
 }
 
-- (void)authenticateWithUsername:(NSString *)username password:(NSString *)password success:(void (^)(NSString *))success failure:(void (^)(NSError *))failure {
+- (void)authenticateWithUsername:(NSString *)username password:(NSString *)password success:(PinboardStringBlock)success failure:(PinboardErrorBlock)failure {
     [self authenticateWithUsername:username password:password timeout:20.0 success:success failure:failure];
 }
 
@@ -169,7 +169,7 @@
 
 #pragma mark Generic Endpoints
 
-- (void)lastUpdateWithSuccess:(void (^)(NSDate *))success failure:(void (^)(NSError *))failure {
+- (void)lastUpdateWithSuccess:(PinboardDateBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:@"posts/update"
               success:^(id response) {
                   success([self.dateFormatter dateFromString:response[@"update_time"]]);
@@ -177,7 +177,7 @@
               failure:failure];
 }
 
-- (void)rssKeyWithSuccess:(void (^)(NSString *))success {
+- (void)rssKeyWithSuccess:(PinboardStringBlock)success {
     [self requestPath:@"user/secret" success:^(id response) {
         success(response[@"result"]);
     }];
@@ -185,7 +185,7 @@
 
 #pragma mark Bookmarks
 
-- (void)bookmarksWithSuccess:(void (^)(NSArray *))success failure:(void (^)(NSError *))failure {
+- (void)bookmarksWithSuccess:(PinboardArrayBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:@"posts/all"
            parameters:@{@"meta": @"yes"}
               success:^(id response) {
@@ -200,8 +200,8 @@
                  fromDate:(NSDate *)fromDate
                    toDate:(NSDate *)toDate
               includeMeta:(BOOL)includeMeta
-                  success:(void (NSArray *))success
-                  failure:(void (^)(NSError *))failure {
+                  success:(PinboardArrayBlock)success
+                  failure:(PinboardErrorBlock)failure {
     NSDictionary *parameters = @{
         @"tag": tags,
         @"start": [NSString stringWithFormat:@"%d", offset],
@@ -218,7 +218,7 @@
               failure:failure];
 }
 
-- (void)bookmarksByDateWithTags:(NSString *)tags success:(void (^)(NSDictionary *))success {
+- (void)bookmarksByDateWithTags:(NSString *)tags success:(PinboardDictionaryBlock)success {
     [self requestPath:@"posts/dates"
            parameters:@{@"tag": tags}
               success:^(id response) {
@@ -227,7 +227,7 @@
               failure:^(NSError *error) {}];
 }
 
-- (void)addBookmark:(NSDictionary *)bookmark success:(void (^)())success failure:(void (^)(NSError *))failure {
+- (void)addBookmark:(NSDictionary *)bookmark success:(PinboardEmptyBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:@"posts/add"
            parameters:bookmark
               success:^(id response) {
@@ -242,8 +242,8 @@
                       tags:(NSString *)tags
                     shared:(BOOL)shared
                     unread:(BOOL)unread
-                   success:(void (^)())success
-                   failure:(void (^)(NSError *))failure {
+                   success:(PinboardEmptyBlock)success
+                   failure:(PinboardErrorBlock)failure {
     NSDictionary *bookmark = @{
         @"url": url,
         @"description": title,
@@ -255,7 +255,7 @@
     [self addBookmark:bookmark success:success failure:failure];
 }
 
-- (void)bookmarkWithURL:(NSString *)url success:(void (^)(NSDictionary *))success failure:(void (^)(NSError *))failure {
+- (void)bookmarkWithURL:(NSString *)url success:(PinboardDictionaryBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:@"posts/get"
            parameters:@{@"url": url}
               success:^(id response) {
@@ -269,7 +269,7 @@
               failure:failure];
 }
 
-- (void)deleteBookmarkWithURL:(NSString *)url success:(void (^)())success failure:(void (^)(NSError *))failure {
+- (void)deleteBookmarkWithURL:(NSString *)url success:(PinboardEmptyBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:@"posts/delete"
            parameters:@{@"url": url}
               success:^(id response) {
@@ -280,13 +280,13 @@
 
 #pragma mark Notes
 
-- (void)notesWithSuccess:(void (^)(NSArray *))success {
+- (void)notesWithSuccess:(PinboardArrayBlock)success {
     [self requestPath:@"notes/list" success:^(id response) {
         success(response[@"notes"]);
     }];
 }
 
-- (void)noteWithId:(NSString *)noteId success:(void (^)(NSString *, NSString *))success {
+- (void)noteWithId:(NSString *)noteId success:(PinboardTwoStringBlock)success {
     NSString *path = [NSString stringWithFormat:@"notes/%@", noteId];
     [self requestPath:path success:^(id response) {
         success(response[@"title"], response[@"text"]);
@@ -295,14 +295,14 @@
 
 #pragma mark Tags
 
-- (void)tagsWithSuccess:(void (^)(NSDictionary *))success {
+- (void)tagsWithSuccess:(PinboardDictionaryBlock)success {
     [self requestPath:@"tags/get"
               success:^(id response) {
                   success((NSDictionary *)response);
               }];
 }
 
-- (void)deleteTag:(NSString *)tag success:(void (^)())success {
+- (void)deleteTag:(NSString *)tag success:(PinboardEmptyBlock)success {
     [self requestPath:@"tags/delete"
            parameters:@{@"tag": tag}
               success:^(id response) {
@@ -311,7 +311,7 @@
               failure:^(NSError *error) {}];
 }
 
-- (void)renameTagFrom:(NSString *)oldTag to:(NSString *)newTag success:(void (^)())success {
+- (void)renameTagFrom:(NSString *)oldTag to:(NSString *)newTag success:(PinboardEmptyBlock)success {
     [self requestPath:@"tags/rename"
            parameters:@{@"old": oldTag, @"new": newTag}
               success:^(id response) {
@@ -320,7 +320,7 @@
               failure:^(NSError *error) {}];
 }
 
-- (void)tagSuggestionsForURL:(NSString *)url success:(void (^)(NSArray *, NSArray *))success {
+- (void)tagSuggestionsForURL:(NSString *)url success:(PinboardTwoArrayBlock)success {
     [self requestPath:@"posts/suggest"
            parameters:@{@"url": url}
               success:^(id response) {
