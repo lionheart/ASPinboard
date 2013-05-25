@@ -190,12 +190,14 @@
 #pragma mark Bookmarks
 
 - (void)bookmarksWithSuccess:(PinboardArrayBlock)success failure:(PinboardErrorBlock)failure {
-    [self requestPath:@"posts/all"
-           parameters:@{@"meta": @"yes"}
-              success:^(id response) {
-                  success((NSArray *)response);
-              }
-              failure:failure];
+    [self bookmarksWithTags:nil
+                     offset:-1
+                      count:-1
+                   fromDate:nil
+                     toDate:nil
+                includeMeta:YES
+                    success:success
+                    failure:failure];
 }
 
 - (void)bookmarksWithTags:(NSString *)tags
@@ -206,14 +208,30 @@
               includeMeta:(BOOL)includeMeta
                   success:(PinboardArrayBlock)success
                   failure:(PinboardErrorBlock)failure {
-    NSDictionary *parameters = @{
-        @"tag": tags,
-        @"start": [NSString stringWithFormat:@"%d", offset],
-        @"results": [NSString stringWithFormat:@"%d", count],
-        @"fromdt": [self.dateFormatter stringFromDate:fromDate],
-        @"todt": [self.dateFormatter stringFromDate:toDate],
-        @"meta": includeMeta ? @"yes" : @"no"
-    };
+    
+    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
+    if (tags) {
+        parameters[@"tags"] = tags;
+    }
+    
+    if (offset != -1) {
+        parameters[@"start"] = [NSString stringWithFormat:@"%d", offset];
+    }
+
+    if (count != -1) {
+        parameters[@"results"] = [NSString stringWithFormat:@"%d", count];
+    }
+    
+    if (fromDate) {
+        parameters[@"fromdt"] = [self.dateFormatter stringFromDate:fromDate];
+    }
+    
+    if (toDate) {
+        parameters[@"todt"] = [self.dateFormatter stringFromDate:toDate];
+    }
+    
+    parameters[@"meta"] = includeMeta ? @"yes" : @"no";
+
     [self requestPath:@"posts/all"
            parameters:parameters
               success:^(id response) {
