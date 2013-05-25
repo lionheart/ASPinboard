@@ -172,7 +172,11 @@
 - (void)lastUpdateWithSuccess:(PinboardDateBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:@"posts/update"
               success:^(id response) {
-                  success([self.dateFormatter dateFromString:response[@"update_time"]]);
+                  NSDate *date = [self.dateFormatter dateFromString:response[@"update_time"]];
+                  if (!date) {
+                      date = [NSDate date];
+                  }
+                  success(date);
               }
               failure:failure];
 }
