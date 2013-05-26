@@ -133,6 +133,7 @@
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     if (connection == self.loginConnection) {
         self.loginRequestInProgress = NO;
+        [self.loginTimer invalidate];
         NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
         if (payload == nil) {
             self.loginFailureCallback([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
