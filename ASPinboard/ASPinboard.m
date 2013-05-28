@@ -72,21 +72,24 @@
     NSString *urlString = [NSString stringWithFormat:@"%@%@?%@", PinboardEndpoint, path, queryString];
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                               self.requestCompletedCallback();
-                               if (error.code == NSURLErrorUserCancelledAuthentication) {
-                                   failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
-                               }
-                               else if (data == nil) {
-                                   failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorEmptyResponse userInfo:nil]);
-                               }
-                               else {
-                                   id response = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-                                   success(response);
-                               }
-                           }];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [NSURLConnection sendAsynchronousRequest:request
+                                           queue:[NSOperationQueue mainQueue]
+                               completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                                   self.requestCompletedCallback();
+                                   if (error.code == NSURLErrorUserCancelledAuthentication) {
+                                       failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
+                                   }
+                                   else if (data == nil) {
+                                       failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorEmptyResponse userInfo:nil]);
+                                   }
+                                   else {
+                                       id response = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+                                       success(response);
+                                   }
+                               }];
+    });
 }
 
 - (void)requestPath:(NSString *)path success:(PinboardGenericBlock)success failure:(PinboardErrorBlock)failure {
@@ -107,9 +110,12 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     self.loginRequestInProgress = YES;
     self.loginTimer = [NSTimer timerWithTimeInterval:timeout target:self selector:@selector(timerCompleted:) userInfo:nil repeats:NO];
-    [[NSRunLoop mainRunLoop] addTimer:self.loginTimer forMode:NSRunLoopCommonModes];
-    self.loginConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:NO];
-    [self.loginConnection start];
+    [[NSRunLoop currentRunLoop] addTimer:self.loginTimer forMode:NSRunLoopCommonModes];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.loginConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:YES];
+        [self.loginConnection start];
+    });
 }
 
 - (void)authenticateWithUsername:(NSString *)username password:(NSString *)password success:(PinboardStringBlock)success failure:(PinboardErrorBlock)failure {
