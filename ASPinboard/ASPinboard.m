@@ -63,6 +63,10 @@
             [queryComponents addObject:[NSString stringWithFormat:@"%@=%@", [key urlEncode], [value urlEncode]]];
         }
     }];
+    
+    if (!failure) {
+        failure = ^(NSError *error) {};
+    }
 
     if (self.token != nil) {
         [queryComponents addObject:[NSString stringWithFormat:@"auth_token=%@", self.token]];
