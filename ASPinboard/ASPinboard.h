@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-static NSString *PinboardEndpoint = @"https://api.pinboard.in/v1/";
-static NSString *ASPinboardErrorDomain = @"ASPinboardErrorDomain";
+static NSString *PinboardEndpoint __unused = @"https://api.pinboard.in/v1/";
+static NSString *ASPinboardErrorDomain __unused = @"ASPinboardErrorDomain";
 
 typedef void(^PinboardGenericBlock)(id);
 typedef void(^PinboardEmptyBlock)();
