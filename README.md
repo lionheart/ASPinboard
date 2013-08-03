@@ -1,6 +1,6 @@
 # ASPinboard
 
-ASPinboard is the Objective-C library for [Pinboard](https://pinboard.in) that powers [Pushpin](http://getpushpin.com/). It uses modern Objective-C features (such as ARC and blocks), supports iOS 6, and is dead-simple to integrate. As of January 2013, ASPinboard has full support for every endpoint in the [Pinboard API](https://pinboard.in/api), except [posts/recent](https://pinboard.in/api#posts_recent).
+ASPinboard is the Objective-C library for [Pinboard](https://pinboard.in) that powers [Pushpin](http://getpushpin.com/). It uses modern Objective-C features (such as ARC and blocks), supports iOS 5.1+, and is dead-simple to integrate. As of January 2013, ASPinboard has full support for every endpoint in the [Pinboard API](https://pinboard.in/api), except [posts/recent](https://pinboard.in/api#posts_recent).
 
 ## Getting Started
 
