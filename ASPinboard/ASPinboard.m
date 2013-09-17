@@ -3,6 +3,7 @@
 //  ASPinboard
 //
 //  Created by Dan Loewenherz on 1/29/13.
+//    Updated 9/17/2013
 //  Copyright (c) 2013 Aurora Software. All rights reserved.
 //
 
@@ -200,7 +201,7 @@
 
 #pragma mark Bookmarks
 
-- (void)bookmarksWithSuccess:(PinboardArrayBlock)success failure:(PinboardErrorBlock)failure {
+- (void)bookmarksWithSuccess:(PinboardSuccessBlock)success failure:(PinboardErrorBlock)failure {
     [self bookmarksWithTags:nil
                      offset:-1
                       count:-1
@@ -217,7 +218,7 @@
                  fromDate:(NSDate *)fromDate
                    toDate:(NSDate *)toDate
               includeMeta:(BOOL)includeMeta
-                  success:(PinboardArrayBlock)success
+                  success:(PinboardSuccessBlock)success
                   failure:(PinboardErrorBlock)failure {
     
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
@@ -246,7 +247,7 @@
     [self requestPath:@"posts/all"
            parameters:parameters
               success:^(id response) {
-                  success((NSArray *)response);
+                  success((NSArray *)response, [parameters copy]);
               }
               failure:failure];
 }

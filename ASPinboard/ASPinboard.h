@@ -3,6 +3,7 @@
 //  ASPinboard
 //
 //  Created by Dan Loewenherz on 1/29/13.
+//    Updated 9/17/2013
 //  Copyright (c) 2013 Aurora Software. All rights reserved.
 //
 
@@ -17,6 +18,7 @@ typedef void(^PinboardStringBlock)(NSString *);
 typedef void(^PinboardTwoStringBlock)(NSString *, NSString *);
 typedef void(^PinboardDateBlock)(NSDate *);
 typedef void(^PinboardArrayBlock)(NSArray *);
+typedef void(^PinboardSuccessBlock)(NSArray *, NSDictionary *);
 typedef void(^PinboardTwoArrayBlock)(NSArray *, NSArray *);
 typedef void(^PinboardDictionaryBlock)(NSDictionary *);
 typedef void(^PinboardErrorBlock)(NSError *);
@@ -76,7 +78,7 @@ enum PINBOARD_ERROR_CODES {
 
 #pragma mark Bookmarks
 
-- (void)bookmarksWithSuccess:(PinboardArrayBlock)success
+- (void)bookmarksWithSuccess:(PinboardSuccessBlock)success
                      failure:(PinboardErrorBlock)failure;
 
 - (void)bookmarksWithTags:(NSString *)tags
@@ -85,7 +87,7 @@ enum PINBOARD_ERROR_CODES {
                  fromDate:(NSDate *)fromDate
                    toDate:(NSDate *)toDate
               includeMeta:(BOOL)includeMeta
-                  success:(PinboardArrayBlock)success
+                  success:(PinboardSuccessBlock)success
                   failure:(PinboardErrorBlock)failure;
 
 - (void)bookmarksByDateWithTags:(NSString *)tags success:(PinboardDictionaryBlock)success;
