@@ -9,19 +9,17 @@
 
 #import "ASPinboard.h"
 #import "NSString+URLEncoding.h"
+#import "TFHpple.h"
+
+@interface ASPinboard ()
+
+@property (nonatomic, strong) NSString *searchQuery;
+@property (nonatomic, strong) NSURLConnection *redirectingConnection;
+@property (nonatomic, copy) void (^SearchCompletedSuccess)(NSArray *);
+
+@end
 
 @implementation ASPinboard
-
-@synthesize token = _token;
-@synthesize requestStartedCallback;
-@synthesize requestCompletedCallback;
-@synthesize loginFailureCallback;
-@synthesize loginSuccessCallback;
-@synthesize loginConnection;
-@synthesize loginRequestInProgress;
-@synthesize username = _username;
-@synthesize password = _password;
-@synthesize dateFormatter;
 
 + (ASPinboard *)sharedInstance {
     static ASPinboard *sharedInstance = nil;
@@ -204,6 +202,95 @@
 
 #pragma mark Bookmarks
 
+- (void)searchBookmarksWithCookies:(NSArray *)cookies
+                             query:(NSString *)query
+                           success:(PinboardArrayBlock)success {
+    
+    NSString *username;
+    for (NSHTTPCookie *cookie in cookies) {
+        if ([cookie.name isEqualToString:@"login"]) {
+            username = cookie.value;
+        }
+    }
+
+    NSString *encodedQuery = [query urlEncode];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://pinboard.in/search/u:%@?fulltext=on&query=%@", username, encodedQuery]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setAllHTTPHeaderFields:[NSHTTPCookie requestHeaderFieldsWithCookies:cookies]];
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+                               TFHpple *doc = [[TFHpple alloc] initWithHTMLData:data];
+                               NSArray *results = [doc searchWithXPathQuery:@"//a[contains(@class, 'bookmark_title')]"];
+
+                               NSMutableArray *urls = [NSMutableArray array];
+                               for (TFHppleElement *element in results) {
+                                   [urls addObject:element.attributes[@"href"]];
+                               }
+ 
+                               if (success) {
+                                   success(urls);
+                               }
+                           }];
+}
+
+- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response {
+    if (connection == self.redirectingConnection) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        if (httpResponse.statusCode == 302) {
+            NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:[httpResponse allHeaderFields] forURL:request.URL];
+
+            NSMutableArray *newCookies = [NSMutableArray array];
+            for (NSHTTPCookie *cookie in cookies) {
+                if ([cookie.name isEqualToString:@"secauth"]) {
+                    [newCookies addObject:cookie];
+                }
+                else if ([cookie.name isEqualToString:@"auth"]) {
+                    [newCookies addObject:cookie];
+                }
+                else if ([cookie.name isEqualToString:@"login"]) {
+                    [newCookies addObject:cookie];
+                }
+            }
+
+            [self searchBookmarksWithCookies:newCookies
+                                       query:self.searchQuery
+                                     success:self.SearchCompletedSuccess];
+        }
+    }
+    return request;
+}
+
+- (void)searchBookmarksWithUsername:(NSString *)username
+                           password:(NSString *)password
+                              query:(NSString *)query
+                            success:(PinboardArrayBlock)success {
+    
+    if (self.redirectingConnection) {
+        [self.redirectingConnection cancel];
+    }
+
+    self.searchQuery = query;
+    self.SearchCompletedSuccess = success;
+    
+    NSDictionary *parameters = @{@"password": password,
+                                 @"username": username};
+    NSURL *url = [NSURL URLWithString:@"https://pinboard.in/auth/"];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+
+    NSMutableArray *queryComponents = [NSMutableArray array];
+    [parameters enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+        if (![value isEqualToString:@""]) {
+            [queryComponents addObject:[NSString stringWithFormat:@"%@=%@", [key urlEncode], [value urlEncode]]];
+        }
+    }];
+
+    request.HTTPBody = [[queryComponents componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
+    request.HTTPMethod = @"POST";
+    self.redirectingConnection = [NSURLConnection connectionWithRequest:request delegate:self];
+    [self.redirectingConnection start];
+}
+
 - (void)bookmarksWithSuccess:(PinboardSuccessBlock)success failure:(PinboardErrorBlock)failure {
     [self bookmarksWithTags:nil
                      offset:-1
@@ -230,11 +317,11 @@
     }
     
     if (offset != -1) {
-        parameters[@"start"] = [NSString stringWithFormat:@"%d", offset];
+        parameters[@"start"] = [NSString stringWithFormat:@"%ld", (long)offset];
     }
 
     if (count != -1) {
-        parameters[@"results"] = [NSString stringWithFormat:@"%d", count];
+        parameters[@"results"] = [NSString stringWithFormat:@"%ld", (long)count];
     }
     
     if (fromDate) {

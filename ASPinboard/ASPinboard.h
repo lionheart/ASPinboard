@@ -90,6 +90,15 @@ enum PINBOARD_ERROR_CODES {
                   success:(PinboardSuccessBlock)success
                   failure:(PinboardErrorBlock)failure;
 
+- (void)searchBookmarksWithCookies:(NSArray *)cookies
+                             query:(NSString *)query
+                           success:(PinboardArrayBlock)success;
+
+- (void)searchBookmarksWithUsername:(NSString *)username
+                           password:(NSString *)password
+                              query:(NSString *)query
+                            success:(PinboardArrayBlock)success;
+
 - (void)bookmarksByDateWithTags:(NSString *)tags success:(PinboardDictionaryBlock)success;
 
 - (void)addBookmark:(NSDictionary *)bookmark
