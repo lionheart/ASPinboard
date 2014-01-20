@@ -77,7 +77,7 @@
     NSString *queryString = [queryComponents componentsJoinedByString:@"&"];
     NSString *urlString = [NSString stringWithFormat:@"%@%@?%@", PinboardEndpoint, path, queryString];
     NSURL *url = [NSURL URLWithString:urlString];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [NSURLConnection sendAsynchronousRequest:request
@@ -114,6 +114,7 @@
 
     NSURL *url = [NSURL URLWithString:@"user/api_token?format=json" relativeToURL:[ASPinboard endpointURL]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     self.loginRequestInProgress = YES;
     self.loginTimer = [NSTimer timerWithTimeInterval:timeout target:self selector:@selector(timerCompleted:) userInfo:nil repeats:NO];
     [[NSRunLoop currentRunLoop] addTimer:self.loginTimer forMode:NSRunLoopCommonModes];
