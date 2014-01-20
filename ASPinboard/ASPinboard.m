@@ -16,6 +16,7 @@
 @property (nonatomic, strong) NSString *searchQuery;
 @property (nonatomic, strong) NSURLConnection *redirectingConnection;
 @property (nonatomic, copy) void (^SearchCompletedSuccess)(NSArray *);
+@property (nonatomic, strong) NSMutableArray *authCookies;
 
 @end
 
@@ -129,19 +130,7 @@
     [self authenticateWithUsername:username password:password timeout:20.0 success:success failure:failure];
 }
 
-#pragma mark - URL Connection Delegates
-
-- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
-    if (connection == self.loginConnection) {
-        if ([challenge previousFailureCount] == 0) {
-            NSURLCredential *credential = [NSURLCredential credentialWithUser:self.username password:self.password persistence:NSURLCredentialPersistenceNone];
-            [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
-        }
-        else {
-            self.loginFailureCallback([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
-        }
-    }
-}
+#pragma mark - NSURLConnectionDataDelegate
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     if (connection == self.loginConnection) {
@@ -156,6 +145,47 @@
             self.loginSuccessCallback(self.token);
             self.username = nil;
             self.password = nil;
+        }
+    }
+}
+
+- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response {
+    if (connection == self.redirectingConnection) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        if (httpResponse.statusCode == 302) {
+            NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:[httpResponse allHeaderFields] forURL:request.URL];
+
+            self.authCookies = [NSMutableArray array];
+            for (NSHTTPCookie *cookie in cookies) {
+                if ([cookie.name isEqualToString:@"secauth"]) {
+                    [self.authCookies addObject:cookie];
+                }
+                else if ([cookie.name isEqualToString:@"auth"]) {
+                    [self.authCookies addObject:cookie];
+                }
+                else if ([cookie.name isEqualToString:@"login"]) {
+                    [self.authCookies addObject:cookie];
+                }
+            }
+
+            [self searchBookmarksWithCookies:self.authCookies
+                                       query:self.searchQuery
+                                     success:self.SearchCompletedSuccess];
+        }
+    }
+    return request;
+}
+
+#pragma mark - NSURLConnectionDelegate
+
+- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
+    if (connection == self.loginConnection) {
+        if ([challenge previousFailureCount] == 0) {
+            NSURLCredential *credential = [NSURLCredential credentialWithUser:self.username password:self.password persistence:NSURLCredentialPersistenceNone];
+            [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
+        }
+        else {
+            self.loginFailureCallback([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
         }
     }
 }
@@ -235,33 +265,6 @@
                            }];
 }
 
-- (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response {
-    if (connection == self.redirectingConnection) {
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        if (httpResponse.statusCode == 302) {
-            NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:[httpResponse allHeaderFields] forURL:request.URL];
-
-            NSMutableArray *newCookies = [NSMutableArray array];
-            for (NSHTTPCookie *cookie in cookies) {
-                if ([cookie.name isEqualToString:@"secauth"]) {
-                    [newCookies addObject:cookie];
-                }
-                else if ([cookie.name isEqualToString:@"auth"]) {
-                    [newCookies addObject:cookie];
-                }
-                else if ([cookie.name isEqualToString:@"login"]) {
-                    [newCookies addObject:cookie];
-                }
-            }
-
-            [self searchBookmarksWithCookies:newCookies
-                                       query:self.searchQuery
-                                     success:self.SearchCompletedSuccess];
-        }
-    }
-    return request;
-}
-
 - (void)searchBookmarksWithUsername:(NSString *)username
                            password:(NSString *)password
                               query:(NSString *)query
@@ -269,27 +272,46 @@
     
     if (self.redirectingConnection) {
         [self.redirectingConnection cancel];
+        self.redirectingConnection = nil;
     }
 
     self.searchQuery = query;
     self.SearchCompletedSuccess = success;
     
-    NSDictionary *parameters = @{@"password": password,
-                                 @"username": username};
-    NSURL *url = [NSURL URLWithString:@"https://pinboard.in/auth/"];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    // Check if auth cookies exist and that they are not expired
+    BOOL validAuthCookiesExist = NO;
+    if (self.authCookies) {
+        // Ensure that no cookies expire before the current date.
+        validAuthCookiesExist = [self.authCookies indexesOfObjectsPassingTest:^(NSHTTPCookie *cookie, NSUInteger idx, BOOL *stop) {
+            return (BOOL)([cookie.expiresDate compare:[NSDate date]] == NSOrderedAscending);
+        }].count == 0;
+    }
 
-    NSMutableArray *queryComponents = [NSMutableArray array];
-    [parameters enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
-        if (![value isEqualToString:@""]) {
-            [queryComponents addObject:[NSString stringWithFormat:@"%@=%@", [key urlEncode], [value urlEncode]]];
-        }
-    }];
+    if (validAuthCookiesExist) {
+        [self searchBookmarksWithCookies:self.authCookies
+                                   query:self.searchQuery
+                                 success:self.SearchCompletedSuccess];
+    }
+    else {
+        NSDictionary *parameters = @{@"password": password,
+                                     @"username": username};
+        NSURL *url = [NSURL URLWithString:@"https://pinboard.in/auth/"];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+        [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+        [request setTimeoutInterval:5];
 
-    request.HTTPBody = [[queryComponents componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
-    request.HTTPMethod = @"POST";
-    self.redirectingConnection = [NSURLConnection connectionWithRequest:request delegate:self];
-    [self.redirectingConnection start];
+        NSMutableArray *queryComponents = [NSMutableArray array];
+        [parameters enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+            if (![value isEqualToString:@""]) {
+                [queryComponents addObject:[NSString stringWithFormat:@"%@=%@", [key urlEncode], [value urlEncode]]];
+            }
+        }];
+
+        request.HTTPBody = [[queryComponents componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
+        request.HTTPMethod = @"POST";
+        self.redirectingConnection = [NSURLConnection connectionWithRequest:request delegate:self];
+        [self.redirectingConnection start];
+    }
 }
 
 - (void)bookmarksWithSuccess:(PinboardSuccessBlock)success failure:(PinboardErrorBlock)failure {
