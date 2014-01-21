@@ -49,7 +49,8 @@
         self.requestStartedCallback = ^{};
         
         NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-        
+
+        self.dateFormatter = [[NSDateFormatter alloc] init];
         [self.dateFormatter setLocale:enUSPOSIXLocale];
         [self.dateFormatter setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'"];
         [self.dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
