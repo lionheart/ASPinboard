@@ -7,12 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3728CF5118749B0F00155791 /* TFHpple.h in Headers */ = {isa = PBXBuildFile; fileRef = 3728CF4B18749B0F00155791 /* TFHpple.h */; };
-		3728CF5218749B0F00155791 /* TFHpple.m in Sources */ = {isa = PBXBuildFile; fileRef = 3728CF4C18749B0F00155791 /* TFHpple.m */; };
-		3728CF5318749B0F00155791 /* TFHppleElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 3728CF4D18749B0F00155791 /* TFHppleElement.h */; };
-		3728CF5418749B0F00155791 /* TFHppleElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 3728CF4E18749B0F00155791 /* TFHppleElement.m */; };
-		3728CF5518749B0F00155791 /* XPathQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3728CF4F18749B0F00155791 /* XPathQuery.h */; };
-		3728CF5618749B0F00155791 /* XPathQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3728CF5018749B0F00155791 /* XPathQuery.m */; };
 		3728CF5A18749B2B00155791 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3728CF5918749B2B00155791 /* libxml2.2.dylib */; };
 		379B7D7116B8E4BC0071BD95 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 379B7D7016B8E4BC0071BD95 /* Foundation.framework */; };
 		379B7D7616B8E4BC0071BD95 /* ASPinboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 379B7D7516B8E4BC0071BD95 /* ASPinboard.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -35,12 +29,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3728CF4B18749B0F00155791 /* TFHpple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFHpple.h; sourceTree = "<group>"; };
-		3728CF4C18749B0F00155791 /* TFHpple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFHpple.m; sourceTree = "<group>"; };
-		3728CF4D18749B0F00155791 /* TFHppleElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFHppleElement.h; sourceTree = "<group>"; };
-		3728CF4E18749B0F00155791 /* TFHppleElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFHppleElement.m; sourceTree = "<group>"; };
-		3728CF4F18749B0F00155791 /* XPathQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPathQuery.h; sourceTree = "<group>"; };
-		3728CF5018749B0F00155791 /* XPathQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XPathQuery.m; sourceTree = "<group>"; };
 		3728CF5918749B2B00155791 /* libxml2.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.dylib; path = usr/lib/libxml2.2.dylib; sourceTree = SDKROOT; };
 		379B7D6D16B8E4BC0071BD95 /* libASPinboard.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libASPinboard.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		379B7D7016B8E4BC0071BD95 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -65,19 +53,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3728CF5818749B1800155791 /* TFHpple */ = {
-			isa = PBXGroup;
-			children = (
-				3728CF4B18749B0F00155791 /* TFHpple.h */,
-				3728CF4C18749B0F00155791 /* TFHpple.m */,
-				3728CF4D18749B0F00155791 /* TFHppleElement.h */,
-				3728CF4E18749B0F00155791 /* TFHppleElement.m */,
-				3728CF4F18749B0F00155791 /* XPathQuery.h */,
-				3728CF5018749B0F00155791 /* XPathQuery.m */,
-			);
-			name = TFHpple;
-			sourceTree = "<group>";
-		};
 		379B7D6416B8E4BC0071BD95 = {
 			isa = PBXGroup;
 			children = (
@@ -108,7 +83,6 @@
 		379B7D7216B8E4BC0071BD95 /* ASPinboard */ = {
 			isa = PBXGroup;
 			children = (
-				3728CF5818749B1800155791 /* TFHpple */,
 				379B7D7516B8E4BC0071BD95 /* ASPinboard.h */,
 				379B7D7716B8E4BC0071BD95 /* ASPinboard.m */,
 				379B7DB116B8F67A0071BD95 /* NSString+URLEncoding.h */,
@@ -133,10 +107,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3728CF5118749B0F00155791 /* TFHpple.h in Headers */,
-				3728CF5518749B0F00155791 /* XPathQuery.h in Headers */,
 				379B7D7616B8E4BC0071BD95 /* ASPinboard.h in Headers */,
-				3728CF5318749B0F00155791 /* TFHppleElement.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -192,10 +163,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3728CF5418749B0F00155791 /* TFHppleElement.m in Sources */,
 				379B7D7816B8E4BC0071BD95 /* ASPinboard.m in Sources */,
-				3728CF5618749B0F00155791 /* XPathQuery.m in Sources */,
-				3728CF5218749B0F00155791 /* TFHpple.m in Sources */,
 				379B7DB316B8F67A0071BD95 /* NSString+URLEncoding.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
