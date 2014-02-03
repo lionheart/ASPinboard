@@ -79,7 +79,7 @@
     NSString *queryString = [queryComponents componentsJoinedByString:@"&"];
     NSString *urlString = [NSString stringWithFormat:@"%@%@?%@", PinboardEndpoint, path, queryString];
     NSURL *url = [NSURL URLWithString:urlString];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [NSURLConnection sendAsynchronousRequest:request
