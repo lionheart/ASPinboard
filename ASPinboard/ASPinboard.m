@@ -13,10 +13,12 @@
 
 @interface ASPinboard ()
 
+@property (nonatomic, copy) void (^SearchCompletedSuccess)(NSArray *);
+
 @property (nonatomic, strong) NSString *searchQuery;
 @property (nonatomic, strong) NSURLConnection *redirectingConnection;
-@property (nonatomic, copy) void (^SearchCompletedSuccess)(NSArray *);
 @property (nonatomic, strong) NSMutableArray *authCookies;
+@property (nonatomic) ASPinboardSearchScopeType searchScope;
 
 @end
 
@@ -171,6 +173,7 @@
 
             [self searchBookmarksWithCookies:self.authCookies
                                        query:self.searchQuery
+                                       scope:self.searchScope
                                      success:self.SearchCompletedSuccess];
         }
     }
@@ -236,8 +239,8 @@
 
 - (void)searchBookmarksWithCookies:(NSArray *)cookies
                              query:(NSString *)query
+                             scope:(ASPinboardSearchScopeType)scope
                            success:(PinboardArrayBlock)success {
-    
     NSString *username;
     for (NSHTTPCookie *cookie in cookies) {
         if ([cookie.name isEqualToString:@"login"]) {
@@ -246,7 +249,27 @@
     }
 
     NSString *encodedQuery = [query urlEncode];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://pinboard.in/search/u:%@?fulltext=on&query=%@", username, encodedQuery]];
+    NSURL *url;
+
+    switch (scope) {
+        case ASPinboardSearchScopeFullText:
+            url = [NSURL URLWithString:[NSString stringWithFormat:@"https://pinboard.in/search/u:%@?fulltext=on&query=%@", username, encodedQuery]];
+            break;
+
+        case ASPinboardSearchScopeMine:
+            url = [NSURL URLWithString:[NSString stringWithFormat:@"https://pinboard.in/search/u:%@?query=%@", username, encodedQuery]];
+            break;
+
+        case ASPinboardSearchScopeNetwork:
+            url = [NSURL URLWithString:[NSString stringWithFormat:@"https://pinboard.in/search/u:%@/network/?query=%@", username, encodedQuery]];
+            break;
+
+        case ASPinboardSearchScopeAll:
+            url = [NSURL URLWithString:[NSString stringWithFormat:@"https://pinboard.in/search/?query=%@&all=Search+All", encodedQuery]];
+            break;
+    }
+
+    NSLog(@"%@", url);
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setAllHTTPHeaderFields:[NSHTTPCookie requestHeaderFieldsWithCookies:cookies]];
     [NSURLConnection sendAsynchronousRequest:request
@@ -269,13 +292,14 @@
 - (void)searchBookmarksWithUsername:(NSString *)username
                            password:(NSString *)password
                               query:(NSString *)query
+                              scope:(ASPinboardSearchScopeType)scope
                             success:(PinboardArrayBlock)success {
-    
     if (self.redirectingConnection) {
         [self.redirectingConnection cancel];
         self.redirectingConnection = nil;
     }
 
+    self.searchScope = scope;
     self.searchQuery = query;
     self.SearchCompletedSuccess = success;
     
@@ -291,6 +315,7 @@
     if (validAuthCookiesExist) {
         [self searchBookmarksWithCookies:self.authCookies
                                    query:self.searchQuery
+                                   scope:scope
                                  success:self.SearchCompletedSuccess];
     }
     else {

@@ -23,12 +23,20 @@ typedef void(^PinboardTwoArrayBlock)(NSArray *, NSArray *);
 typedef void(^PinboardDictionaryBlock)(NSDictionary *);
 typedef void(^PinboardErrorBlock)(NSError *);
 
-enum PINBOARD_ERROR_CODES {
+typedef enum : NSInteger {
+    ASPinboardSearchScopeAll,
+    ASPinboardSearchScopeNetwork,
+    ASPinboardSearchScopeMine,
+    ASPinboardSearchScopeFullText,
+    ASPinboardSearchScopeNone
+} ASPinboardSearchScopeType;
+
+typedef enum : NSInteger {
     PinboardErrorBookmarkNotFound,
     PinboardErrorTimeout,
     PinboardErrorInvalidCredentials,
     PinboardErrorEmptyResponse
-};
+} ASPinboardErrorType;
 
 @interface ASPinboard : NSObject <NSURLConnectionDataDelegate, NSURLConnectionDelegate>
 
@@ -92,11 +100,13 @@ enum PINBOARD_ERROR_CODES {
 
 - (void)searchBookmarksWithCookies:(NSArray *)cookies
                              query:(NSString *)query
+                             scope:(ASPinboardSearchScopeType)scope
                            success:(PinboardArrayBlock)success;
 
 - (void)searchBookmarksWithUsername:(NSString *)username
                            password:(NSString *)password
                               query:(NSString *)query
+                              scope:(ASPinboardSearchScopeType)scope
                             success:(PinboardArrayBlock)success;
 
 - (void)bookmarksByDateWithTags:(NSString *)tags success:(PinboardDictionaryBlock)success;
