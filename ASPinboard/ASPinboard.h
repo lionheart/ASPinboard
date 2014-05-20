@@ -22,6 +22,7 @@ typedef void(^PinboardSuccessBlock)(NSArray *, NSDictionary *);
 typedef void(^PinboardTwoArrayBlock)(NSArray *, NSArray *);
 typedef void(^PinboardDictionaryBlock)(NSDictionary *);
 typedef void(^PinboardErrorBlock)(NSError *);
+typedef void(^PinboardSearchResultBlock)(NSArray *urls, NSError *error);
 
 typedef enum : NSInteger {
     ASPinboardSearchScopeAll,
@@ -101,13 +102,13 @@ typedef enum : NSInteger {
 - (void)searchBookmarksWithCookies:(NSArray *)cookies
                              query:(NSString *)query
                              scope:(ASPinboardSearchScopeType)scope
-                           success:(PinboardArrayBlock)success;
+                        completion:(PinboardSearchResultBlock)completion;
 
 - (void)searchBookmarksWithUsername:(NSString *)username
                            password:(NSString *)password
                               query:(NSString *)query
                               scope:(ASPinboardSearchScopeType)scope
-                            success:(PinboardArrayBlock)success;
+                         completion:(PinboardSearchResultBlock)completion;
 
 - (void)bookmarksByDateWithTags:(NSString *)tags success:(PinboardDictionaryBlock)success;
 

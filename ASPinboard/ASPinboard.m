@@ -13,7 +13,7 @@
 
 @interface ASPinboard ()
 
-@property (nonatomic, copy) void (^SearchCompletedSuccess)(NSArray *);
+@property (nonatomic, copy) PinboardSearchResultBlock SearchCompleted;
 
 @property (nonatomic, strong) NSString *searchQuery;
 @property (nonatomic, strong) NSURLConnection *redirectingConnection;
@@ -174,7 +174,7 @@
             [self searchBookmarksWithCookies:self.authCookies
                                        query:self.searchQuery
                                        scope:self.searchScope
-                                     success:self.SearchCompletedSuccess];
+                                  completion:self.SearchCompleted];
         }
     }
     return request;
@@ -293,15 +293,20 @@
                            password:(NSString *)password
                               query:(NSString *)query
                               scope:(ASPinboardSearchScopeType)scope
-                            success:(PinboardArrayBlock)success {
+                         completion:(PinboardSearchResultBlock)completion {
     if (self.redirectingConnection) {
         [self.redirectingConnection cancel];
         self.redirectingConnection = nil;
     }
 
+    if ([username length] == 0 || [password length] == 0) {
+        // Should rename "success" to "completion" and pass an NSError here
+        completion(nil, [NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
+    }
+
     self.searchScope = scope;
     self.searchQuery = query;
-    self.SearchCompletedSuccess = success;
+    self.SearchCompleted = completion;
     
     // Check if auth cookies exist and that they are not expired
     BOOL validAuthCookiesExist = NO;
@@ -316,7 +321,7 @@
         [self searchBookmarksWithCookies:self.authCookies
                                    query:self.searchQuery
                                    scope:scope
-                                 success:self.SearchCompletedSuccess];
+                              completion:self.SearchCompleted];
     }
     else {
         NSDictionary *parameters = @{@"password": password,
