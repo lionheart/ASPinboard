@@ -300,48 +300,48 @@
     }
 
     if ([username length] == 0 || [password length] == 0) {
-        // Should rename "success" to "completion" and pass an NSError here
         completion(nil, [NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
     }
-
-    self.searchScope = scope;
-    self.searchQuery = query;
-    self.SearchCompleted = completion;
-    
-    // Check if auth cookies exist and that they are not expired
-    BOOL validAuthCookiesExist = NO;
-    if (self.authCookies) {
-        // Ensure that no cookies expire before the current date.
-        validAuthCookiesExist = [self.authCookies indexesOfObjectsPassingTest:^(NSHTTPCookie *cookie, NSUInteger idx, BOOL *stop) {
-            return (BOOL)([cookie.expiresDate compare:[NSDate date]] == NSOrderedAscending);
-        }].count == 0;
-    }
-
-    if (validAuthCookiesExist) {
-        [self searchBookmarksWithCookies:self.authCookies
-                                   query:self.searchQuery
-                                   scope:scope
-                              completion:self.SearchCompleted];
-    }
     else {
-        NSDictionary *parameters = @{@"password": password,
-                                     @"username": username};
-        NSURL *url = [NSURL URLWithString:@"https://pinboard.in/auth/"];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-        [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-        [request setTimeoutInterval:5];
+        self.searchScope = scope;
+        self.searchQuery = query;
+        self.SearchCompleted = completion;
+        
+        // Check if auth cookies exist and that they are not expired
+        BOOL validAuthCookiesExist = NO;
+        if (self.authCookies) {
+            // Ensure that no cookies expire before the current date.
+            validAuthCookiesExist = [self.authCookies indexesOfObjectsPassingTest:^(NSHTTPCookie *cookie, NSUInteger idx, BOOL *stop) {
+                return (BOOL)([cookie.expiresDate compare:[NSDate date]] == NSOrderedAscending);
+            }].count == 0;
+        }
 
-        NSMutableArray *queryComponents = [NSMutableArray array];
-        [parameters enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
-            if (![value isEqualToString:@""]) {
-                [queryComponents addObject:[NSString stringWithFormat:@"%@=%@", [key urlEncode], [value urlEncode]]];
-            }
-        }];
+        if (validAuthCookiesExist) {
+            [self searchBookmarksWithCookies:self.authCookies
+                                       query:self.searchQuery
+                                       scope:scope
+                                  completion:self.SearchCompleted];
+        }
+        else {
+            NSDictionary *parameters = @{@"password": password,
+                                         @"username": username};
+            NSURL *url = [NSURL URLWithString:@"https://pinboard.in/auth/"];
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+            [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+            [request setTimeoutInterval:5];
 
-        request.HTTPBody = [[queryComponents componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
-        request.HTTPMethod = @"POST";
-        self.redirectingConnection = [NSURLConnection connectionWithRequest:request delegate:self];
-        [self.redirectingConnection start];
+            NSMutableArray *queryComponents = [NSMutableArray array];
+            [parameters enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *value, BOOL *stop) {
+                if (![value isEqualToString:@""]) {
+                    [queryComponents addObject:[NSString stringWithFormat:@"%@=%@", [key urlEncode], [value urlEncode]]];
+                }
+            }];
+
+            request.HTTPBody = [[queryComponents componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
+            request.HTTPMethod = @"POST";
+            self.redirectingConnection = [NSURLConnection connectionWithRequest:request delegate:self];
+            [self.redirectingConnection start];
+        }
     }
 }
 
