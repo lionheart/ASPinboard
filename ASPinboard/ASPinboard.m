@@ -240,7 +240,7 @@
 - (void)searchBookmarksWithCookies:(NSArray *)cookies
                              query:(NSString *)query
                              scope:(ASPinboardSearchScopeType)scope
-                           success:(PinboardArrayBlock)success {
+                        completion:(PinboardSearchResultBlock)completion {
     NSString *username;
     for (NSHTTPCookie *cookie in cookies) {
         if ([cookie.name isEqualToString:@"login"]) {
@@ -283,8 +283,8 @@
                                    [urls addObject:element.attributes[@"href"]];
                                }
  
-                               if (success) {
-                                   success(urls);
+                               if (completion) {
+                                   completion(urls, nil);
                                }
                            }];
 }
@@ -339,8 +339,11 @@
 
             request.HTTPBody = [[queryComponents componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
             request.HTTPMethod = @"POST";
-            self.redirectingConnection = [NSURLConnection connectionWithRequest:request delegate:self];
-            [self.redirectingConnection start];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.redirectingConnection = [NSURLConnection connectionWithRequest:request delegate:self];
+                [self.redirectingConnection start];
+            });
         }
     }
 }
