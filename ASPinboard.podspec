@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios
   s.summary      = "A modern, fast, and flexible Objective-C library for Pinboard.in."
   s.ios.deployment_target = "7.0"
-  s.version      = "0.0.2"
+  s.version      = "0.0.3"
   s.homepage     = "http://lionheartsw.com"
   s.license      = 'Apache 2.0'
   s.author       = { "Dan Loewenherz" => "dan@lionheartsw.com" }
