@@ -107,7 +107,9 @@
 }
 
 - (void)requestPath:(NSString *)path success:(PinboardGenericBlock)success {
-    [self requestPath:path parameters:nil success:success failure:^(NSError *error){}];
+    [self requestPath:path parameters:nil success:success failure:^(NSError *error){
+    
+    }];
 }
 
 - (void)authenticateWithUsername:(NSString *)username password:(NSString *)password timeout:(NSTimeInterval)timeout success:(PinboardStringBlock)success failure:(PinboardErrorBlock)failure{
