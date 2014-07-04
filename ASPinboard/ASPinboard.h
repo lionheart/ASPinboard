@@ -11,6 +11,7 @@
 
 static NSString *PinboardEndpoint __unused = @"https://api.pinboard.in/v1/";
 static NSString *ASPinboardErrorDomain __unused = @"ASPinboardErrorDomain";
+static NSString *ASPinboardHTTPURLResponseKey = @"ASPinboardHTTPURLResponseKey";
 
 typedef void(^PinboardGenericBlock)(id);
 typedef void(^PinboardEmptyBlock)();
@@ -83,7 +84,7 @@ typedef enum : NSInteger {
 #pragma mark Generic Endpoints
 
 - (void)lastUpdateWithSuccess:(PinboardDateBlock)success failure:(PinboardErrorBlock)failure;
-- (void)rssKeyWithSuccess:(PinboardStringBlock)success;
+- (void)rssKeyWithSuccess:(PinboardStringBlock)success failure:(PinboardErrorBlock)failure;
 
 #pragma mark Bookmarks
 

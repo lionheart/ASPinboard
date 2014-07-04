@@ -75,6 +75,7 @@
     }
 
     if (self.token != nil) {
+#warning XXX
         [queryComponents addObject:[NSString stringWithFormat:@"auth_token=%@", self.token]];
     }
 
@@ -82,23 +83,33 @@
     NSString *urlString = [NSString stringWithFormat:@"%@%@?%@", PinboardEndpoint, path, queryString];
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30];
-    
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        [NSURLConnection sendAsynchronousRequest:request
-                                           queue:[NSOperationQueue mainQueue]
-                               completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                                   self.requestCompletedCallback();
-                                   if (error.code == NSURLErrorUserCancelledAuthentication) {
-                                       failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:nil]);
-                                   }
-                                   else if (data == nil) {
-                                       failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorEmptyResponse userInfo:nil]);
-                                   }
-                                   else {
-                                       id response = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-                                       success(response);
-                                   }
-                               }];
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request
+                                                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                                                    
+                                                    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+                                                    [userInfo addEntriesFromDictionary:error.userInfo];
+                                                    userInfo[ASPinboardHTTPURLResponseKey] = httpResponse;
+
+                                                    self.requestCompletedCallback();
+                                                    if (httpResponse.statusCode == 401 || httpResponse.statusCode == 429) {
+                                                        failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:userInfo]);
+                                                    }
+                                                    else if (error.code == NSURLErrorUserCancelledAuthentication) {
+                                                        failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorInvalidCredentials userInfo:userInfo]);
+                                                    }
+                                                    else if (data == nil) {
+                                                        failure([NSError errorWithDomain:ASPinboardErrorDomain code:PinboardErrorEmptyResponse userInfo:userInfo]);
+                                                    }
+                                                    else {
+                                                        id response = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+                                                        success(response);
+                                                    }
+                                                }];
+        [task resume];
     });
 }
 
@@ -231,10 +242,10 @@
               failure:failure];
 }
 
-- (void)rssKeyWithSuccess:(PinboardStringBlock)success {
+- (void)rssKeyWithSuccess:(PinboardStringBlock)success failure:(PinboardErrorBlock)failure {
     [self requestPath:@"user/secret" success:^(id response) {
         success(response[@"result"]);
-    }];
+    } failure:failure];
 }
 
 #pragma mark Bookmarks
