@@ -92,7 +92,10 @@
                                                     
                                                     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
                                                     [userInfo addEntriesFromDictionary:error.userInfo];
-                                                    userInfo[ASPinboardHTTPURLResponseKey] = httpResponse;
+                                                    
+                                                    if (httpResponse) {
+                                                        userInfo[ASPinboardHTTPURLResponseKey] = httpResponse;
+                                                    }
 
                                                     self.requestCompletedCallback();
                                                     if (httpResponse.statusCode == 401 || httpResponse.statusCode == 429) {
