@@ -44,8 +44,8 @@ If you want to use a token that you've previously stored or copied from your set
 Now that you have a token, let's grab your bookmarks, shall we?
 
 ```objective-c
-void (^successBlock)(NSArray *);
-successBlock = ^(NSArray *bookmarks) {
+void (^successBlock)(NSArray *, NSDictionary *);
+successBlock = ^(NSArray *bookmarks, NSDictionary *parameters) {
     NSLog(@"Here are your bookmarks:");
     for (id bookmark in bookmarks) {
         NSLog(@"url: %@", bookmark[@"href"]);
@@ -84,4 +84,3 @@ Please see ASPinboard.h for the full list of supported methods.
 ## License
 
 ASPinboard is available for use under the Apache License, Version 2.0. See LICENSE for more details.
-
