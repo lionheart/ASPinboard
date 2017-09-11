@@ -15,9 +15,10 @@
 //  limitations under the License.
 //
 
+@import hpple;
+
 #import "ASPinboard.h"
 #import "NSString+URLEncoding.h"
-#import "TFHpple.h"
 
 @interface ASPinboard ()
 

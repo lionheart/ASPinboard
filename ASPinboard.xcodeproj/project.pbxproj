@@ -19,7 +19,7 @@
 		37EDEFE71F661A33003CD323 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 37EDEFE61F661A33003CD323 /* Assets.xcassets */; };
 		37EDEFEA1F661A33003CD323 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 37EDEFE81F661A33003CD323 /* LaunchScreen.storyboard */; };
 		37EDEFED1F661A33003CD323 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 37EDEFEC1F661A33003CD323 /* main.m */; };
-		3A687685916CB53309A82F97 /* libPods-ASPinboard-Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 63BACACE86304E13C3F46EF2 /* libPods-ASPinboard-Example.a */; };
+		B8EABB0C4E79DACED1985FE6 /* Pods_ASPinboard_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0944C91755808F4AE791F3D5 /* Pods_ASPinboard_Example.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +36,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0944C91755808F4AE791F3D5 /* Pods_ASPinboard_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ASPinboard_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		259E10C0E1E53AF75D95E744 /* libPods-ASPinboard.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ASPinboard.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3728CF5918749B2B00155791 /* libxml2.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.dylib; path = usr/lib/libxml2.2.dylib; sourceTree = SDKROOT; };
 		379B7D6D16B8E4BC0071BD95 /* libASPinboard.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libASPinboard.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -57,7 +58,6 @@
 		37EDEFEB1F661A33003CD323 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		37EDEFEC1F661A33003CD323 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		3905201B0376CEC725FCCFBF /* Pods-ASPinboard-Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASPinboard-Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-ASPinboard-Example/Pods-ASPinboard-Example.release.xcconfig"; sourceTree = "<group>"; };
-		63BACACE86304E13C3F46EF2 /* libPods-ASPinboard-Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ASPinboard-Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0D33F0D0506DE7648A6BC40 /* Pods-ASPinboard-Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASPinboard-Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ASPinboard-Example/Pods-ASPinboard-Example.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -75,7 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A687685916CB53309A82F97 /* libPods-ASPinboard-Example.a in Frameworks */,
+				B8EABB0C4E79DACED1985FE6 /* Pods_ASPinboard_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,7 +109,7 @@
 				379B7D7016B8E4BC0071BD95 /* Foundation.framework */,
 				379B7D8A16B8E8690071BD95 /* UIKit.framework */,
 				259E10C0E1E53AF75D95E744 /* libPods-ASPinboard.a */,
-				63BACACE86304E13C3F46EF2 /* libPods-ASPinboard-Example.a */,
+				0944C91755808F4AE791F3D5 /* Pods_ASPinboard_Example.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -266,9 +266,14 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-ASPinboard-Example/Pods-ASPinboard-Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/ASPinboard/ASPinboard.framework",
+				"${BUILT_PRODUCTS_DIR}/hpple/hpple.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ASPinboard.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hpple.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -356,8 +361,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -402,8 +409,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;

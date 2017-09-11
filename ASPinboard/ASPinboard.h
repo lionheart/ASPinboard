@@ -15,7 +15,7 @@
 //  limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 static NSString *PinboardEndpoint __unused = @"https://api.pinboard.in/v1/";
 static NSString *ASPinboardErrorDomain __unused = @"ASPinboardErrorDomain";
@@ -62,9 +62,7 @@ typedef enum : NSInteger {
 @property (nonatomic, copy) void (^requestCompletedCallback)(void);
 @property (nonatomic, copy) void (^loginSuccessCallback)(NSString *);
 @property (nonatomic, copy) void (^loginFailureCallback)(NSError *);
-//@property (nonatomic, copy) void (^loginTimeoutCallback)();
 
-+ (NSString *)urlEncode;
 + (ASPinboard *)sharedInstance;
 + (NSURL *)endpointURL;
 - (void)resetAuthentication;
