@@ -1,5 +1,5 @@
 PODS:
-  - ASPinboard (0.0.3):
+  - ASPinboard (1.0.0):
     - hpple (~> 0.2.0)
   - hpple (0.2.0)
 
@@ -12,9 +12,9 @@ EXTERNAL SOURCES:
     :path: .
 
 SPEC CHECKSUMS:
-  ASPinboard: 80ace27c6db2ac7681d2851b6ba9460d68243bd7
+  ASPinboard: 04dbe1357a1ebc6a8ec63bc8e9a06a06308ee8d1
   hpple: 3b765f96fc2cd56ad1a49aef6f7be5cb2aa64b57
 
-PODFILE CHECKSUM: b7fcebd0a5a581d90b7ff46874d54db492ff1b36
+PODFILE CHECKSUM: 7e098cd8b8ea233a6137f90d8fd2efb731e14b03
 
 COCOAPODS: 1.3.1
