@@ -22,7 +22,7 @@ static NSString *ASPinboardErrorDomain __unused = @"ASPinboardErrorDomain";
 static NSString *ASPinboardHTTPURLResponseKey = @"ASPinboardHTTPURLResponseKey";
 
 typedef void(^PinboardGenericBlock)(id);
-typedef void(^PinboardEmptyBlock)();
+typedef void(^PinboardEmptyBlock)(void);
 typedef void(^PinboardStringBlock)(NSString *);
 typedef void(^PinboardTwoStringBlock)(NSString *, NSString *);
 typedef void(^PinboardDateBlock)(NSDate *);
@@ -58,11 +58,11 @@ typedef enum : NSInteger {
 @property (nonatomic, retain) NSTimer *loginTimer;
 @property (nonatomic) BOOL loginRequestInProgress;
 
-@property (nonatomic, copy) void (^requestStartedCallback)();
-@property (nonatomic, copy) void (^requestCompletedCallback)();
+@property (nonatomic, copy) void (^requestStartedCallback)(void);
+@property (nonatomic, copy) void (^requestCompletedCallback)(void);
 @property (nonatomic, copy) void (^loginSuccessCallback)(NSString *);
-@property (nonatomic, copy) void (^loginFailureCallback)();
-@property (nonatomic, copy) void (^loginTimeoutCallback)();
+@property (nonatomic, copy) void (^loginFailureCallback)(NSError *);
+//@property (nonatomic, copy) void (^loginTimeoutCallback)();
 
 + (NSString *)urlEncode;
 + (ASPinboard *)sharedInstance;
@@ -122,7 +122,7 @@ typedef enum : NSInteger {
 - (void)bookmarksByDateWithTags:(NSString *)tags success:(PinboardDictionaryBlock)success;
 
 - (void)addBookmark:(NSDictionary *)bookmark
-            success:(void (^)())success
+            success:(void (^)(void))success
             failure:(void (^)(NSError *))failure;
 
 - (void)addBookmarkWithURL:(NSString *)url

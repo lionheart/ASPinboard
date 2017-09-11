@@ -291,6 +291,9 @@
         case ASPinboardSearchScopeAll:
             url = [NSURL URLWithString:[NSString stringWithFormat:@"https://pinboard.in/search/?query=%@&all=Search+All", encodedQuery]];
             break;
+
+        case ASPinboardSearchScopeNone:
+            break;
     }
 
     NSLog(@"%@", url);
