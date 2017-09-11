@@ -1,5 +1,8 @@
-platform :ios, '7'
+platform :ios, '9.3'
 
 inhibit_all_warnings!
 
-pod 'hpple', '0.2.0'
+target 'ASPinboard-Example' do
+  pod 'ASPinboard', :path => '.'
+  pod 'hpple', '0.2.0'
+end
